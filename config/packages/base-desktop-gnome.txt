@@ -24,6 +24,7 @@ wireplumber
 alsa-utils
 alsa-ucm-conf
 pavucontrol
+pulseaudio-utils
 
 # 触屏 / 输入
 xserver-xorg-input-libinput

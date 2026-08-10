@@ -191,6 +191,28 @@ EOF
     run_chroot "$ROOTFS" dconf update 2>/dev/null || true
 fi
 
+# ---------- 关键组件冒烟检查 ----------
+# 防止 --no-install-recommends 漏掉 Recommends 依赖（wpa_supplicant/wireplumber
+# 等均因此缺失过）；组件缺失直接构建失败，而不是刷机后才暴露。
+info "关键组件检查"
+missing=""
+for cmd in ip ping wpa_supplicant nmcli; do
+    run_chroot "$ROOTFS" bash -c "command -v $cmd" >/dev/null 2>&1 || missing="$missing $cmd"
+done
+case "$EDITION" in
+    desktop|desktop-gnome)
+        for cmd in wireplumber pactl amixer bluetoothctl; do
+            run_chroot "$ROOTFS" bash -c "command -v $cmd" >/dev/null 2>&1 || missing="$missing $cmd"
+        done
+        [ "$LANG" = "zh-CN" ] && { \
+            run_chroot "$ROOTFS" bash -c "command -v fcitx5" >/dev/null 2>&1 || missing="$missing fcitx5"; }
+        ;;
+esac
+if [ -n "$missing" ]; then
+    die "关键组件缺失:${missing}"
+fi
+info "关键组件齐全"
+
 # ---------- 清理 ----------
 info "清理"
 run_chroot "$ROOTFS" apt-get clean
