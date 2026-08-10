@@ -1,0 +1,5 @@
+# 让 mutter/GNOME 识别内置加速度计（启用自动旋转与方向管理）
+# iio-sensor-proxy 的 80-iio-sensor-proxy.rules 只设 IIO_SENSOR_PROXY_TYPE，
+# 未设 ACCELEROMETER_SENSOR；mutter 按此属性判定可旋转面板（真机验证：
+# PanelOrientationManaged=true，转动屏幕跟随旋转）。
+SUBSYSTEM=="iio", ATTRS{name}=="accel_3d", ENV{ACCELEROMETER_SENSOR}="1"

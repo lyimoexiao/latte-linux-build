@@ -237,6 +237,21 @@ EOF
     run_chroot "$ROOTFS" dconf update 2>/dev/null || true
 fi
 
+# ---------- 桌面显示与传感器（系统默认） ----------
+# 200% 缩放 + 横屏（DSI-1 原生竖排 1536x2048）：monitors.xml 是 GNOME/mutter 的
+# 显示配置，预置到新用户模板(/etc/skel)、内置用户与 GDM 锁屏，实现镜像级默认 DPI。
+mkdir -p "$ROOTFS/etc/skel/.config" \
+         "$ROOTFS/home/$DEFAULT_USER/.config" \
+         "$ROOTFS/var/lib/gdm3/.config"
+cp "$ROOT/config/monitors.xml" "$ROOTFS/etc/skel/.config/monitors.xml"
+cp "$ROOT/config/monitors.xml" "$ROOTFS/home/$DEFAULT_USER/.config/monitors.xml"
+cp "$ROOT/config/monitors.xml" "$ROOTFS/var/lib/gdm3/.config/monitors.xml"
+chown -R "$DEFAULT_USER:$DEFAULT_USER" "$ROOTFS/home/$DEFAULT_USER/.config"
+chown -R gdm:gdm "$ROOTFS/var/lib/gdm3/.config" 2>/dev/null || true
+
+# 加速度计 udev 属性（GNOME 自动旋转）
+cp "$ROOT/config/60-latte-sensor.rules" "$ROOTFS/etc/udev/rules.d/60-latte-sensor.rules"
+
 # ---------- 关键组件冒烟检查 ----------
 # 防止 --no-install-recommends 漏掉 Recommends 依赖（wpa_supplicant/wireplumber
 # 等均因此缺失过）；组件缺失直接构建失败，而不是刷机后才暴露。
