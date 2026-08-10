@@ -12,6 +12,8 @@ gnome-tweaks
 gnome-power-manager
 # dconf 命令行（写入系统默认设置，如启用内置屏幕键盘）
 dconf-cli
+# 密钥环（gdm PAM 需要 pam_gnome_keyring，缺失会报 PAM 错误）
+gnome-keyring
 
 # 蓝牙
 bluez

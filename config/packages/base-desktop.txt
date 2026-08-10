@@ -7,6 +7,8 @@ xfce4-screenshooter
 xfce4-notifyd
 lightdm
 lightdm-gtk-greeter
+# 密钥环（桌面会话常用；GNOME 必须，XFCE 推荐）
+gnome-keyring
 
 # 网络（network-manager/wpasupplicant 已在 base-common）
 bluez
