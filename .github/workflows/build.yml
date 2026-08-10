@@ -30,23 +30,6 @@ env:
   KERNEL_REF: ${{ github.event.inputs.kernel_ref || 'main' }}
 
 jobs:
-  # ---------- 矩阵解析（手动构建时按输入裁剪） ----------
-  resolve:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: matrix
-        env:
-          DISTRO: ${{ github.event.inputs.distro || 'all' }}
-          EDITION: ${{ github.event.inputs.edition || 'all' }}
-          LANG: ${{ github.event.inputs.lang || 'all' }}
-        run: |
-          MATRIX="$(python3 .github/scripts/gen-matrix.py)"
-          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          echo "解析矩阵: $MATRIX"
-
   # ---------- 内核构建（一次，产物供全部 rootfs job 复用） ----------
   build-kernel:
     runs-on: ubuntu-latest
@@ -80,13 +63,34 @@ jobs:
           path: work/kernel
           retention-days: 7
 
-  # ---------- rootfs + 镜像 + 打包（矩阵并行） ----------
+  # ---------- rootfs + 镜像 + 打包（硬编码矩阵；Server 仅 en-US） ----------
+  # 说明：不使用 fromJSON 动态矩阵（在该仓库实测会令矩阵 job 无法创建），
+  # 改为固定 6 组合 + if 按 workflow_dispatch 输入裁剪。
   build-rootfs:
-    needs: [resolve, build-kernel]
+    needs: build-kernel
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+      matrix:
+        include:
+          - { distro: debian, edition: server,  lang: en-US }
+          - { distro: debian, edition: desktop, lang: en-US }
+          - { distro: debian, edition: desktop, lang: zh-CN }
+          - { distro: ubuntu, edition: server,  lang: en-US }
+          - { distro: ubuntu, edition: desktop, lang: en-US }
+          - { distro: ubuntu, edition: desktop, lang: zh-CN }
+    # 手动构建时按输入裁剪（push/tag 时 inputs 为空 -> 全部执行）
+    if: >-
+      ${{ (
+        (github.event.inputs.distro || 'all') == 'all' ||
+        (github.event.inputs.distro || 'all') == matrix.distro
+      ) && (
+        (github.event.inputs.edition || 'all') == 'all' ||
+        (github.event.inputs.edition || 'all') == matrix.edition
+      ) && (
+        (github.event.inputs.lang || 'all') == 'all' ||
+        (github.event.inputs.lang || 'all') == matrix.lang
+      ) }}
     steps:
       - uses: actions/checkout@v4
       - name: 安装依赖

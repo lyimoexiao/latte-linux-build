@@ -21,10 +21,11 @@ make clean              # 清理 work/ 与 dist/
 
 - **stage 脚本无副作用假设**：每个 stage 只依赖前序 stage 的输出目录，
   可单独重跑（`./scripts/build.sh --stage N`）。
+- **Server 版本仅构建 en-US**；Desktop 构建 en-US 与 zh-CN。矩阵在
+  `.github/workflows/build.yml` 中硬编码为 6 个组合（不使用 fromJSON 动态矩阵：
+  该模式在本仓库实测会令矩阵 job 无法创建），手动构建时按 `if` 条件裁剪。
 - **内核只构建一次**：产物在 `work/kernel/`（debs / kernel-release / firmware），
   全部组合复用。CI 中通过 artifact 传递。
-- **Server 版本仅构建 en-US**；Desktop 构建 en-US 与 zh-CN（见 `build.sh` 与
-  `.github/scripts/gen-matrix.py` 中的矩阵约束，两处逻辑必须一致）。
 - **rootfs 组装**：Stage 2 在 chroot 内完成；`policy-rc.d` 阻止服务启动尝试；
   内核 .deb 必须先于 grub 包安装（避免 kernel postinst 触发 update-grub 失败）。
 - **grub 配置是静态生成**的（`/boot/grub/grub.cfg`），不运行 grub-mkconfig
