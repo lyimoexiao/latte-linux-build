@@ -19,7 +19,7 @@
 ```bash
 # 安装依赖（Debian/Ubuntu）
 sudo apt install debootstrap build-essential bc bison flex libssl-dev libelf-dev \
-  ccache dpkg-dev rsync dosfstools e2fsprogs python3
+  ccache dpkg-dev debhelper rsync dosfstools e2fsprogs python3
 
 # 全矩阵构建（内核编译约 30-60 分钟）
 ./scripts/build.sh

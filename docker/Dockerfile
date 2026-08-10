@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         debootstrap \
         build-essential \
         bc bison flex libssl-dev libelf-dev \
-        ccache dpkg-dev rsync \
+        ccache dpkg-dev debhelper rsync \
         dosfstools mtools e2fsprogs \
         python3 curl ca-certificates \
         kmod sudo file xz-utils git \

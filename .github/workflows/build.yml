@@ -55,7 +55,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential bc bison flex libssl-dev libelf-dev ccache dpkg-dev rsync ca-certificates git
+            build-essential bc bison flex libssl-dev libelf-dev ccache \
+            dpkg-dev debhelper rsync ca-certificates git
       - name: 恢复 ccache
         uses: actions/cache@v4
         with:
