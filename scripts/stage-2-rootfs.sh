@@ -60,7 +60,10 @@ run_chroot "$ROOTFS" apt-get update -y
 run_chroot "$ROOTFS" apt-get install -y --no-install-recommends $PKGS
 
 # ---------- 注入内核 ----------
-KERNEL_DEB="$(ls "$KERNEL_OUT"/debs/linux-image-*.deb | head -n1)"
+# 注意：必须排除 -dbg 调试包（仅含 vmlinux 调试符号，不含 /boot/vmlinuz）。
+# 字母序上 linux-image-*-dbg 排在 linux-image-* 之前，直接 head -n1 会抓错。
+KERNEL_DEB="$(ls "$KERNEL_OUT"/debs/linux-image-*.deb | grep -v -- '-dbg' | head -n1)"
+[ -n "$KERNEL_DEB" ] || die "未找到内核镜像包（linux-image-*）"
 info "注入内核: $(basename "$KERNEL_DEB")"
 cp "$KERNEL_DEB" "$ROOTFS/tmp/"
 run_chroot "$ROOTFS" dpkg -i "/tmp/$(basename "$KERNEL_DEB")"
