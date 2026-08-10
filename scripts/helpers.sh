@@ -62,16 +62,17 @@ locale_of()   { case "${1:-}" in zh-CN) echo "zh_CN.UTF-8";; *) echo "en_US.UTF-
 pkg_list() { # pkg_list <文件>
     local f="$ROOT/config/packages/$1"
     [ -f "$f" ] || { warn "包清单不存在: $f"; return 0; }
-    grep -Ev '^\s*(#|$)' "$f" | tr '\n' ' '
+    grep -Ev '^\s*(#|$)' "$f" | tr '\n' ' ' || true
 }
 
 # 计算某组合需要安装的包集合（去重）
+# 注意 pipefail：子 shell 与管道必须确保退出码为 0（空清单、短路条件都会产生 1）
 resolve_packages() { # resolve_packages <distro> <edition> <lang>
     local distro="$1" edition="$2" lang="$3"
     ( pkg_list base-common.txt; pkg_list "base-${edition}.txt"
       pkg_list "${distro}-extras.txt"
-      [ "$edition" = "desktop" ] && pkg_list "lang-${lang}.txt"
-    ) | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' '
+      if [ "$edition" = "desktop" ]; then pkg_list "lang-${lang}.txt"; fi
+    ) | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ' || true
 }
 
 # ---------- chroot ----------
