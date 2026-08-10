@@ -10,17 +10,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq debootstrap rsync python3 ca-certificates wget curl debian-archive-keyring ubuntu-keyring
-      - name: 在仓库根目录以相对路径运行（复刻 build-rootfs cwd）
+      - name: bash -x 精确复刻 stage-2
         run: |
-          pwd
-          rm -rf work/diag-root && mkdir -p work/diag-root
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble work/diag-root http://archive.ubuntu.com/ubuntu
-          echo "REPO_REL_EXIT=$?"
-      - name: 同样的命令但加 set -euo pipefail 的父 shell
-        run: |
-          rm -rf work/diag-root2 && mkdir -p work/diag-root2
-          bash -euo pipefail -c '
-            set -euo pipefail
-            debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble work/diag-root2 http://archive.ubuntu.com/ubuntu
-            echo "PIPE_EXIT=$?"
-          '
+          mkdir -p work/kernel/debs
+          echo "6.14.0-latte" > work/kernel/kernel-release
+          touch work/kernel/debs/linux-image-6.14.0-latte_1_amd64.deb
+          sudo env "PATH=$PATH" bash -x ./scripts/stage-2-rootfs.sh ubuntu server en-US 2>&1 | tail -70
