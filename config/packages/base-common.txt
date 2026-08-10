@@ -10,6 +10,11 @@ linux-base
 initramfs-tools
 network-manager
 wpasupplicant
+# 基础网络工具：minbase 只装 Essential 包，ip/ping/ifconfig 等 important 包缺失，
+# 必须显式安装（否则无法查看/配置网络）
+iproute2
+iputils-ping
+net-tools
 sudo
 curl
 wget
