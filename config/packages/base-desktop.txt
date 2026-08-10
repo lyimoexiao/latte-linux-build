@@ -26,3 +26,7 @@ onboard
 # 字体
 fonts-dejavu-core
 fonts-liberation
+
+# 视频硬解（i965 VA-API，Cherry Trail/Gen8 唯一可用的 VA-API 驱动）
+# 注意：i965 驱动上游已停止开发，libva 版本过新时可能失效（见 linux_latte/fix_file/README.md）
+i965-va-driver
