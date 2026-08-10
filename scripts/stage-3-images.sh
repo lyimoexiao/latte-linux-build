@@ -71,7 +71,13 @@ info "生成 gpt.bin"
 python3 "$ROOT/scripts/gpt_ini2bin.py" "$ROOT/config/gpt.ini" -o "$STAGE_DIR/images/gpt.bin"
 
 # ---------- root.img 转 sparse ----------
+# 优先用 img2simg（AOSP libsparse 官方工具，与 fastboot 客户端/设备端兼容性最好）；
+# 无则用内置 python 实现（已对齐旧 libsparse 的 total_sz 约定）
 info "root.img -> Android sparse"
-python3 "$ROOT/scripts/sparse.py" "$RAW_IMG" "$ROOT_IMG"
+if command -v img2simg >/dev/null 2>&1; then
+    img2simg "$RAW_IMG" "$ROOT_IMG"
+else
+    python3 "$ROOT/scripts/sparse.py" "$RAW_IMG" "$ROOT_IMG"
+fi
 
 info "Stage 3 完成: $(ls "$STAGE_DIR/images")"

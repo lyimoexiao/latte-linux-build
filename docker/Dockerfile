@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         bc bison flex libssl-dev libelf-dev \
         ccache dpkg-dev debhelper rsync \
         dosfstools mtools e2fsprogs \
+        android-sdk-libsparse-utils \
         python3 curl ca-certificates \
         kmod sudo file xz-utils git \
     && rm -rf /var/lib/apt/lists/*

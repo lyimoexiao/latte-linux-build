@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Android sparse image 写入器（img2simg 的纯 Python 等价实现）。
+"""Android sparse image 写入器（兼容 img2simg / 旧版 libsparse 约定）。
 
-fastboot 客户端/固件按 sparse 格式分块传输大镜像（参考 xiaomi-latte-flash_tools
-的刷机日志中 "Sending sparse 'system' N/M"）。流式处理，避免大镜像全量读入内存。
+注意（重要）：旧版 libsparse（Debian/Ubuntu 的 android-sdk-libsparse-utils、
+多数 fastboot 客户端）要求 RAW chunk 的 total_sz 包含 12 字节 chunk 头，
+即 total_sz = nblocks*blk_sz + 12。若按新约定（纯数据长度）写，libsparse
+读取会错位并报 "Invalid sparse file format at data block"，fastboot 会
+把镜像当 RAW 处理。生产环境优先使用 img2simg，本脚本作为后备。
 
 用法: sparse.py <input.img> <output.img.sparse>
 """
@@ -33,7 +36,8 @@ def main():
             if len(chunk) % BLOCK_SIZE:
                 chunk += b"\0" * (BLOCK_SIZE - len(chunk) % BLOCK_SIZE)
             nblocks = len(chunk) // BLOCK_SIZE
-            fout.write(struct.pack("<III", CHUNK_RAW, nblocks, len(chunk)))
+            # 旧 libsparse 约定：total_sz 包含 12 字节 chunk 头
+            fout.write(struct.pack("<III", CHUNK_RAW, nblocks, len(chunk) + 12))
             fout.write(chunk)
             total_blocks += nblocks
             chunks += 1
