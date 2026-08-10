@@ -113,6 +113,22 @@ snd_soc_rt5659
 snd_soc_sst_cht_bsw_rt5659
 EOF
 
+# 启动早期 modules-load.d 加载时机早于 I2C/ACPI 设备就绪，声卡仍可能卡 -517；
+# 此 oneshot 服务在 multi-user.target 后按正确顺序重载音频模块（真机验证有效）。
+cat > "$ROOTFS/etc/systemd/system/latte-audio-fix.service" <<'EOF'
+[Unit]
+Description=Reload audio modules in correct order (fix EPROBE_DEFER)
+After=systemd-modules-load.service multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "modprobe -r snd_soc_sst_cht_bsw_rt5659 snd_soc_rt5659 snd_soc_sst_atom_hifi2_platform snd_intel_sst_acpi 2>/dev/null; modprobe snd_intel_sst_acpi 2>/dev/null; modprobe snd_soc_sst_atom_hifi2_platform 2>/dev/null; modprobe snd_soc_rt5659 2>/dev/null; modprobe snd_soc_sst_cht_bsw_rt5659 2>/dev/null"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+run_chroot "$ROOTFS" systemctl enable latte-audio-fix.service 2>/dev/null || true
+
 # 触摸屏底部按键 hwdb（来源：linux_latte/fix_file/README.md）
 mkdir -p "$ROOTFS/etc/udev/hwdb.d"
 cat > "$ROOTFS/etc/udev/hwdb.d/60-keyboard.hwdb" <<'EOF'
