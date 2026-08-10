@@ -37,10 +37,10 @@ def main():
             fout.write(chunk)
             total_blocks += nblocks
             chunks += 1
-        # sparse_header: magic, major, minor, file_hdr_sz, chunk_hdr_sz,
-        #                blk_sz, total_blks, total_chunks, image_checksum
+        # sparse_header（28 字节）: magic(I), major(H), minor(H), file_hdr_sz(H),
+        # chunk_hdr_sz(H), blk_sz(I), total_blks(I), total_chunks(I), image_checksum(I)
         fout.seek(header_pos)
-        fout.write(struct.pack("<IIHHIIIII", SPARSE_MAGIC, 0x1, 0x0, 28, 12,
+        fout.write(struct.pack("<IHHHHIIII", SPARSE_MAGIC, 0x1, 0x0, 28, 12,
                                BLOCK_SIZE, total_blocks, chunks, 0))
     print(f"sparse: {dst} ({total_blocks} blocks, {chunks} chunks)")
 
