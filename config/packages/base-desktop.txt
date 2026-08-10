@@ -26,6 +26,3 @@ onboard
 # 字体
 fonts-dejavu-core
 fonts-liberation
-
-# 视频硬解（i965 VA-API，若 libva 版本不兼容可注释掉）
-libva-intel-driver
