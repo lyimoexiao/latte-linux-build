@@ -101,9 +101,17 @@ EOF
 # initramfs 模块（eMMC/USB/触屏/gadget）
 cp "$ROOT/config/initramfs-modules" "$ROOTFS/etc/initramfs-tools/modules"
 
-# 音频模块开机加载（fix_file/audio.md）
+# 音频模块开机加载（fix_file/audio.md + 实测修正）
+# 注意：加载顺序很关键。仅 preload snd_soc_rt5659 时声卡注册会卡 EPROBE_DEFER
+# （snd_soc_register_card failed -517，aplay 无声卡）；按 平台->codec->machine
+# 顺序加载即可正常注册（已在真机验证）。
 mkdir -p "$ROOTFS/etc/modules-load.d"
-echo "snd_soc_rt5659" > "$ROOTFS/etc/modules-load.d/latte.conf"
+cat > "$ROOTFS/etc/modules-load.d/latte.conf" <<'EOF'
+snd_intel_sst_acpi
+snd_soc_sst_atom_hifi2_platform
+snd_soc_rt5659
+snd_soc_sst_cht_bsw_rt5659
+EOF
 
 # 触摸屏底部按键 hwdb（来源：linux_latte/fix_file/README.md）
 mkdir -p "$ROOTFS/etc/udev/hwdb.d"
@@ -125,6 +133,10 @@ mkdir -p "$ROOTFS/lib/firmware/brcm"
 cp "$KERNEL_OUT/firmware/$FW_WIFI" "$ROOTFS/lib/firmware/brcm/"
 cp "$KERNEL_OUT/firmware/$FW_BT" "$ROOTFS/lib/firmware/brcm/"
 cp "$KERNEL_OUT/firmware/$FW_ISP" "$ROOTFS/lib/firmware/"
+# atomisp 驱动实际按 intel/ipu/shisp_2401a0_v21.bin 查找（fix_file README 写的
+# /lib/firmware 根目录位置驱动不识别，实测 dmesg 报 Direct firmware load failed）
+mkdir -p "$ROOTFS/lib/firmware/intel/ipu"
+cp "$KERNEL_OUT/firmware/$FW_ISP" "$ROOTFS/lib/firmware/intel/ipu/"
 # ALSA UCM 音频拓扑（保持目录结构复制到 ucm2）
 if [ -d "$KERNEL_OUT/firmware/audio" ]; then
     mkdir -p "$ROOTFS/usr/share/alsa/ucm2"
