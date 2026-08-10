@@ -5,17 +5,22 @@ jobs:
   db:
     runs-on: ubuntu-latest
     steps:
-      - name: 安装 deps + 打印 PATH
+      - uses: actions/checkout@v4
+      - name: 安装 deps
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq debootstrap rsync python3 ca-certificates wget curl debian-archive-keyring ubuntu-keyring
-          echo "RUNNER_PATH=$PATH"
-      - name: 普通 sudo（对照，已确认成功）
+      - name: 在仓库根目录以相对路径运行（复刻 build-rootfs cwd）
         run: |
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-s http://archive.ubuntu.com/ubuntu
-          echo "SUDO_EXIT=$?"
-      - name: sudo env PATH（复现 build-rootfs 包装）
+          pwd
+          rm -rf work/diag-root && mkdir -p work/diag-root
+          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble work/diag-root http://archive.ubuntu.com/ubuntu
+          echo "REPO_REL_EXIT=$?"
+      - name: 同样的命令但加 set -euo pipefail 的父 shell
         run: |
-          rm -rf /tmp/diag-e
-          sudo env "PATH=$PATH" debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-e http://archive.ubuntu.com/ubuntu
-          echo "ENV_EXIT=$?"
+          rm -rf work/diag-root2 && mkdir -p work/diag-root2
+          bash -euo pipefail -c '
+            set -euo pipefail
+            debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble work/diag-root2 http://archive.ubuntu.com/ubuntu
+            echo "PIPE_EXIT=$?"
+          '
