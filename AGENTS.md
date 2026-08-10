@@ -21,9 +21,9 @@ make clean              # 清理 work/ 与 dist/
 
 - **stage 脚本无副作用假设**：每个 stage 只依赖前序 stage 的输出目录，
   可单独重跑（`./scripts/build.sh --stage N`）。
-- **Server 版本仅构建 en-US**；Desktop 构建 en-US 与 zh-CN。矩阵在
-  `.github/workflows/build.yml` 中硬编码为 6 个组合（不使用 fromJSON 动态矩阵：
-  该模式在本仓库实测会令矩阵 job 无法创建），手动构建时按 `if` 条件裁剪。
+- **Server 版本仅构建 en-US**；Desktop（XFCE）与 Desktop-GNOME 构建 en-US、zh-CN。
+  矩阵在 `.github/workflows/build.yml` 中硬编码为 10 个组合（不使用 fromJSON 动态
+  矩阵：该模式在本仓库实测会令矩阵 job 无法创建），手动构建时按 `if` 条件裁剪。
 - **内核只构建一次**：产物在 `work/kernel/`（debs / kernel-release / firmware），
   全部组合复用。CI 中通过 artifact 传递。
 - **rootfs 组装**：Stage 2 在 chroot 内完成；`policy-rc.d` 阻止服务启动尝试；

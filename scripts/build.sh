@@ -17,7 +17,7 @@ usage() {
 
 选项:
   --distro <all|debian|ubuntu>    发行版（默认 all）
-  --edition <all|server|desktop>  版本（默认 all）
+  --edition <all|server|desktop|desktop-gnome>  版本（默认 all）
   --lang <all|en-US|zh-CN>        语言（默认 all）
   --ref <commit|tag|branch>       内核 ref（默认 build.conf KERNEL_REF）
   --kernel-only                   只构建内核并退出
@@ -36,8 +36,8 @@ case "${distro:-all}" in
     *) die "未知 distro: $distro" ;;
 esac
 case "${edition:-all}" in
-    all|"")    elist="server desktop" ;;
-    server|desktop) elist="$edition" ;;
+    all|"")    elist="server desktop desktop-gnome" ;;
+    server|desktop|desktop-gnome) elist="$edition" ;;
     *) die "未知 edition: $edition" ;;
 esac
 case "${lang:-all}" in

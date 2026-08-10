@@ -65,10 +65,10 @@ jobs:
 
   # ---------- rootfs + 镜像 + 打包（硬编码矩阵；Server 仅 en-US） ----------
   # 说明：
-  # 1) 矩阵固定 6 组合（Server 只出 en-US）。不使用 fromJSON 动态矩阵——
-  #    该模式在本仓库实测无法创建矩阵 job。
+  # 1) 矩阵固定 10 组合（Server 只出 en-US；desktop=XFCE，desktop-gnome=GNOME）。
+  #    不使用 fromJSON 动态矩阵——该模式在本仓库实测无法创建矩阵 job。
   # 2) 手动构建（workflow_dispatch）时按输入在 step 级裁剪（job 级 if 无法
-  #    引用 matrix 上下文）。push/tag 时 inputs 为空 -> 6 个组合全部执行。
+  #    引用 matrix 上下文）。push/tag 时 inputs 为空 -> 全部执行。
   build-rootfs:
     needs: build-kernel
     runs-on: ubuntu-latest
@@ -76,12 +76,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { distro: debian, edition: server,  lang: en-US }
-          - { distro: debian, edition: desktop, lang: en-US }
-          - { distro: debian, edition: desktop, lang: zh-CN }
-          - { distro: ubuntu, edition: server,  lang: en-US }
-          - { distro: ubuntu, edition: desktop, lang: en-US }
-          - { distro: ubuntu, edition: desktop, lang: zh-CN }
+              - { distro: debian, edition: server,         lang: en-US }
+              - { distro: debian, edition: desktop,        lang: en-US }
+              - { distro: debian, edition: desktop,        lang: zh-CN }
+              - { distro: debian, edition: desktop-gnome,  lang: en-US }
+              - { distro: debian, edition: desktop-gnome,  lang: zh-CN }
+              - { distro: ubuntu, edition: server,         lang: en-US }
+              - { distro: ubuntu, edition: desktop,        lang: en-US }
+              - { distro: ubuntu, edition: desktop,        lang: zh-CN }
+              - { distro: ubuntu, edition: desktop-gnome,  lang: en-US }
+              - { distro: ubuntu, edition: desktop-gnome,  lang: zh-CN }
     steps:
       - uses: actions/checkout@v4
       - name: 安装依赖

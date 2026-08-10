@@ -8,8 +8,7 @@ xfce4-notifyd
 lightdm
 lightdm-gtk-greeter
 
-# 网络 / 蓝牙
-network-manager
+# 网络（network-manager/wpasupplicant 已在 base-common）
 bluez
 blueman
 

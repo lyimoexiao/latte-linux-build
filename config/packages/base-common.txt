@@ -1,10 +1,15 @@
 # 所有版本共有基础包（Server + Desktop）
 # 说明：initramfs-tools 需在安装内核 .deb 之前就绪，以便生成 initrd
+# network-manager + wpasupplicant：所有版本都需要网络能力（WiFi 认证后端；
+# network-manager 只把 wpasupplicant 列为 Recommends，--no-install-recommends
+# 下必须显式安装，否则无线无法连接）
 locales
 tzdata
 cpio
 linux-base
 initramfs-tools
+network-manager
+wpasupplicant
 sudo
 curl
 wget

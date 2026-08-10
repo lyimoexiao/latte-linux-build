@@ -1,0 +1,35 @@
+# GNOME 桌面（edition=desktop-gnome）
+# 注意：GNOME 比 XFCE 重，2GB 内存版 Mi Pad 2 上会比较吃力，建议 4GB 版使用。
+# network-manager/wpasupplicant 已在 base-common；语言包由 lang-*.txt 提供。
+# 桌面核心
+gnome-shell
+gnome-session
+gdm3
+gnome-terminal
+nautilus
+gnome-control-center
+gnome-tweaks
+gnome-power-manager
+# dconf 命令行（写入系统默认设置，如启用内置屏幕键盘）
+dconf-cli
+
+# 蓝牙
+bluez
+blueman
+
+# 音频（PipeWire）
+pipewire-pulse
+alsa-ucm-conf
+pavucontrol
+
+# 触屏 / 输入
+xserver-xorg-input-libinput
+xserver-xorg-input-evdev
+onboard
+
+# 字体
+fonts-dejavu-core
+fonts-liberation
+
+# 视频硬解（i965 VA-API，Cherry Trail/Gen8 唯一可用的 VA-API 驱动）
+i965-va-driver

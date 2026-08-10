@@ -4,13 +4,13 @@
 构建 [linux_latte](https://github.com/xiaomi-latte-dev/linux_latte) 内核 → 组装 Debian/Ubuntu
 根文件系统 → 生成 **DNX Mode** 可刷入的完整刷机包（tarball）。
 
-构建矩阵（默认全量 6 个组合）：
+构建矩阵（默认全量 10 个组合）：
 
 | 维度 | 取值 |
 |---|---|
 | 发行版 | Debian 13 (trixie) / Ubuntu 24.04 LTS (noble) |
-| 版本 | Server（最小化，**仅 en-US**）/ Desktop（XFCE，en-US / zh-CN） |
-| 语言 | Server 仅 en-US；Desktop 含 en-US 与 zh-CN（CJK 字体 + fcitx5 中文输入法） |
+| 版本 | Server（最小化，**仅 en-US**）/ Desktop（XFCE）/ Desktop-GNOME（en-US / zh-CN） |
+| 语言 | Server 仅 en-US；桌面版含 en-US 与 zh-CN（CJK 字体 + fcitx5 中文输入法） |
 
 ## 快速开始
 

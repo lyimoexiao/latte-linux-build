@@ -71,7 +71,9 @@ resolve_packages() { # resolve_packages <distro> <edition> <lang>
     local distro="$1" edition="$2" lang="$3"
     ( pkg_list base-common.txt; pkg_list "base-${edition}.txt"
       pkg_list "${distro}-extras.txt"
-      if [ "$edition" = "desktop" ]; then pkg_list "lang-${lang}.txt"; fi
+      if [ "$edition" = "desktop" ] || [ "$edition" = "desktop-gnome" ]; then
+          pkg_list "lang-${lang}.txt"
+      fi
     ) | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ' || true
 }
 

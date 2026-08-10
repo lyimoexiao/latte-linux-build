@@ -176,7 +176,20 @@ echo "$DEFAULT_USER:$DEFAULT_PASSWORD" | chroot "$ROOTFS" chpasswd
 run_chroot "$ROOTFS" usermod -aG sudo "$DEFAULT_USER"
 
 # 启用服务（失败不中断：server 无 NetworkManager/lightdm）
-run_chroot "$ROOTFS" systemctl enable ssh NetworkManager lightdm 2>/dev/null || true
+# desktop-gnome 用 gdm3，desktop(XFCE) 用 lightdm；两个都 enable 无妨
+run_chroot "$ROOTFS" systemctl enable ssh NetworkManager lightdm gdm3 gdm 2>/dev/null || true
+
+# ---------- GNOME 专属配置 ----------
+if [ "$EDITION" = "desktop-gnome" ]; then
+    # 触屏输入：GNOME 内置屏幕键盘默认启用（onboard 也已安装）
+    mkdir -p "$ROOTFS/etc/dconf/profile" "$ROOTFS/etc/dconf/db/local.d"
+    printf 'user-db:user\nsystem-db:local\n' > "$ROOTFS/etc/dconf/profile/user"
+    cat > "$ROOTFS/etc/dconf/db/local.d/10-latte-input" <<'EOF'
+[org/gnome/desktop/a11y/applications]
+screen-keyboard-enabled=true
+EOF
+    run_chroot "$ROOTFS" dconf update 2>/dev/null || true
+fi
 
 # ---------- 清理 ----------
 info "清理"
