@@ -42,8 +42,15 @@ run_chroot "$ROOTFS" grub-install \
 chroot_exit
 trap - EXIT
 umount "$ROOTFS/boot"
-# 3) EFI/BOOT/grub.cfg stub（兜底：确保 GRUB 从 ESP 的 /grub/grub.cfg 加载配置）
+# 3) 静态 grub.cfg 多位置放置 + 稳健 stub：
+#    Debian/Ubuntu 的 grub-install 嵌入 prefix 可能指向 /boot/grub 或错误分区，
+#    仅留 /grub/grub.cfg 会让 GRUB 自动启动时 not found（手动 configfile 却可加载）。
+#    在 GRUB 全部候选位置放副本，并用 search --file 按文件内容精确定位 ESP。
+mkdir -p "$ESP_MNT/boot/grub"
+cp -f "$ESP_MNT/grub/grub.cfg" "$ESP_MNT/boot/grub/grub.cfg"
+cp -f "$ESP_MNT/grub/grub.cfg" "$ESP_MNT/grub.cfg"
 cat > "$ESP_MNT/EFI/BOOT/grub.cfg" <<'EOF'
+search --no-floppy --file --set=root /grub/grub.cfg
 set prefix=($root)/grub
 configfile $prefix/grub.cfg
 EOF
