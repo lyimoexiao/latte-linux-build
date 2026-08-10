@@ -25,8 +25,9 @@ info "== Stage 2: rootfs ($DISTRO/$EDITION/$LANG, suite=$SUITE) =="
 rm -rf "$ROOTFS" "$STAGE_DIR"; mkdir -p "$ROOTFS" "$STAGE_DIR"
 
 # ---------- debootstrap ----------
+# 注意：debootstrap 的 --components 需要逗号分隔；apt sources.list 需要空格分隔
 info "debootstrap $SUITE (amd64, minbase) -> $ROOTFS"
-debootstrap --variant=minbase --arch=amd64 --components="$COMPONENTS" \
+debootstrap --variant=minbase --arch=amd64 --components="${COMPONENTS// /,}" \
     "$SUITE" "$ROOTFS" "$MIRROR"
 
 # 阻止 chroot 内服务启动尝试（镜像构建标准做法）
