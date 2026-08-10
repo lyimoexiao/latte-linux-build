@@ -1,0 +1,10 @@
+# 构建产物
+work/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

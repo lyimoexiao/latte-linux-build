@@ -1,0 +1,11 @@
+# zh-CN 语言增量（Desktop 专用；Server 只需 locale/时区，由 stage-2 处理）
+# CJK 字体
+fonts-noto-cjk
+# fcitx5 中文输入法
+fcitx5
+fcitx5-chinese-addons
+fcitx5-config-qt
+fcitx5-frontend-gtk3
+fcitx5-frontend-qt
+# 中文手册（可选）
+manpages-zh

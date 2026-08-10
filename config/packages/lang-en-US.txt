@@ -1,0 +1,2 @@
+# en-US 语言增量（Desktop 专用；Server 只需 locale，由 stage-2 处理）
+# en-US 默认 locale 在 base 中已满足，无需额外包

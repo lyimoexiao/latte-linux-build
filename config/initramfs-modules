@@ -1,0 +1,19 @@
+# 小米平板 2 必需内核模块（写入目标系统 /etc/initramfs-tools/modules）
+# 来源：postmarketOS pmaports device-xiaomi-latte/modules-initfs
+
+# eMMC 存储
+sdhci-acpi
+mmc_block
+
+# USB
+xhci_pci
+xhci_hub
+usbkbd
+
+# 触摸屏
+i2c-hid-acpi
+hid-multitouch
+
+# USB gadget（调试）
+dwc3
+dwc3_pci

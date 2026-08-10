@@ -1,0 +1,23 @@
+# 所有版本共有基础包（Server + Desktop）
+# 说明：initramfs-tools 需在安装内核 .deb 之前就绪，以便生成 initrd
+locales
+tzdata
+cpio
+linux-base
+initramfs-tools
+sudo
+curl
+wget
+ca-certificates
+gnupg
+git
+nano
+less
+rsync
+unzip
+xz-utils
+file
+htop
+kmod
+udev
+systemd-timesyncd

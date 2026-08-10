@@ -1,0 +1,129 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      distro:
+        description: 发行版
+        type: choice
+        default: all
+        options: [all, debian, ubuntu]
+      edition:
+        description: 版本
+        type: choice
+        default: all
+        options: [all, server, desktop]
+      lang:
+        description: 语言
+        type: choice
+        default: all
+        options: [all, en-US, zh-CN]
+      kernel_ref:
+        description: 内核 ref (commit/tag/branch)
+        type: string
+        default: main
+
+env:
+  KERNEL_REF: ${{ github.event.inputs.kernel_ref || 'main' }}
+
+jobs:
+  # ---------- 矩阵解析（手动构建时按输入裁剪） ----------
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        env:
+          DISTRO: ${{ github.event.inputs.distro || 'all' }}
+          EDITION: ${{ github.event.inputs.edition || 'all' }}
+          LANG: ${{ github.event.inputs.lang || 'all' }}
+        run: python3 .github/scripts/gen-matrix.py
+
+  # ---------- 内核构建（一次，产物供全部 rootfs job 复用） ----------
+  build-kernel:
+    runs-on: ubuntu-latest
+    outputs:
+      kernel_release: ${{ steps.krel.outputs.kernel_release }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential bc bison flex libssl-dev libelf-dev ccache dpkg-dev rsync ca-certificates git
+      - name: 恢复 ccache
+        uses: actions/cache@v4
+        with:
+          path: work/ccache
+          key: kernel-ccache-${{ env.KERNEL_REF }}-${{ github.sha }}
+          restore-keys: kernel-ccache-${{ env.KERNEL_REF }}-
+      - name: 构建内核
+        id: krel
+        run: |
+          export CCACHE_DIR="$PWD/work/ccache"
+          export PATH="/usr/lib/ccache:$PATH"
+          ./scripts/stage-1-kernel.sh --ref "$KERNEL_REF"
+          echo "kernel_release=$(cat work/kernel/kernel-release)" >> "$GITHUB_OUTPUT"
+      - name: 上传内核产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-${{ steps.krel.outputs.kernel_release }}
+          path: work/kernel
+          retention-days: 7
+
+  # ---------- rootfs + 镜像 + 打包（矩阵并行） ----------
+  build-rootfs:
+    needs: [resolve, build-kernel]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            debootstrap rsync dosfstools e2fsprogs python3 ca-certificates
+      - name: 下载内核产物
+        uses: actions/download-artifact@v4
+        with:
+          name: kernel-${{ needs.build-kernel.outputs.kernel_release }}
+          path: work/kernel
+      - name: 构建并打包（stage 2-4）
+        run: |
+          sudo env "PATH=$PATH" ./scripts/build.sh \
+            --skip-kernel \
+            --distro ${{ matrix.distro }} \
+            --edition ${{ matrix.edition }} \
+            --lang ${{ matrix.lang }}
+      - name: 上传刷机包
+        uses: actions/upload-artifact@v4
+        with:
+          name: flash-package-${{ matrix.distro }}-${{ matrix.edition }}-${{ matrix.lang }}
+          path: dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  # ---------- Release（仅 tag 触发） ----------
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build-rootfs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: flash-package-*
+          merge-multiple: true
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
+          generate_release_notes: true

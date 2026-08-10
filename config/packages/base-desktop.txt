@@ -1,0 +1,31 @@
+# Desktop 版增量包（XFCE 轻量桌面）
+# 桌面核心
+xfce4
+xfce4-terminal
+xfce4-power-manager
+xfce4-screenshooter
+xfce4-notifyd
+lightdm
+lightdm-gtk-greeter
+
+# 网络 / 蓝牙
+network-manager
+bluez
+blueman
+
+# 音频（新发行版默认 PipeWire）
+pipewire-pulse
+alsa-ucm-conf
+pavucontrol
+
+# 触屏 / 输入
+xserver-xorg-input-libinput
+xserver-xorg-input-evdev
+onboard
+
+# 字体
+fonts-dejavu-core
+fonts-liberation
+
+# 视频硬解（i965 VA-API，若 libva 版本不兼容可注释掉）
+libva-intel-driver

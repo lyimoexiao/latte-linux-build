@@ -1,0 +1,3 @@
+# Debian 特有包
+# firmware-linux-free 提供少量自由固件，体积小、无害
+firmware-linux-free
