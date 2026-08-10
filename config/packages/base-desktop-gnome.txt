@@ -14,6 +14,8 @@ gnome-power-manager
 dconf-cli
 # 密钥环（gdm PAM 需要 pam_gnome_keyring，缺失会报 PAM 错误）
 gnome-keyring
+# 传感器代理（重力/陀螺仪/光感 -> GNOME 自动旋转/亮度）
+iio-sensor-proxy
 
 # 蓝牙
 bluez

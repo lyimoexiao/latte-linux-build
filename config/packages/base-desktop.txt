@@ -9,6 +9,8 @@ lightdm
 lightdm-gtk-greeter
 # 密钥环（桌面会话常用；GNOME 必须，XFCE 推荐）
 gnome-keyring
+# 传感器代理（重力/陀螺仪/光感 -> GNOME 自动旋转/亮度，设备已内置 accel_3d 等）
+iio-sensor-proxy
 
 # 网络（network-manager/wpasupplicant 已在 base-common）
 bluez
