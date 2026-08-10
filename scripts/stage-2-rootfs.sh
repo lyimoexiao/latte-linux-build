@@ -226,7 +226,7 @@ EOF
 
 # ---------- 默认用户 ----------
 info "创建默认用户 $DEFAULT_USER"
-run_chroot "$ROOTFS" useradd -m -s /bin/bash "$DEFAULT_USER" 2>/dev/null || true
+run_chroot "$ROOTFS" useradd -m -s /bin/bash "$DEFAULT_USER" || true
 echo "$DEFAULT_USER:$DEFAULT_PASSWORD" | chroot "$ROOTFS" chpasswd
 run_chroot "$ROOTFS" usermod -aG sudo "$DEFAULT_USER"
 

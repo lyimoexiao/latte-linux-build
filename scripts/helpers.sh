@@ -98,7 +98,13 @@ chroot_exit() { # chroot_exit — 卸载
 
 run_chroot() { # run_chroot <rootfs> <cmd...>
     local rootfs="$1"; shift
+    # chroot 环境挂载 /proc（部分工具如 useradd 依赖；失败容忍，无权限时退化为裸 chroot）。
+    # 注意：不挂 /sys，避免 shim-signed 等 postinst 误判存在 EFI 固件而尝试 NVRAM 操作。
+    mount -t proc proc "$rootfs/proc" 2>/dev/null || true
     chroot "$rootfs" "$@"
+    local rc=$?
+    umount "$rootfs/proc" 2>/dev/null || true
+    return $rc
 }
 
 # ---------- 镜像 ----------
