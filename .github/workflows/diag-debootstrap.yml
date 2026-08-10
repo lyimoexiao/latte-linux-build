@@ -5,17 +5,17 @@ jobs:
   db:
     runs-on: ubuntu-latest
     steps:
-      - name: 安装 deps
+      - name: 安装 deps + 打印 PATH
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq debootstrap rsync python3 ca-certificates wget curl debian-archive-keyring ubuntu-keyring
-      - name: debootstrap 绝对路径（对照）
+          echo "RUNNER_PATH=$PATH"
+      - name: 普通 sudo（对照，已确认成功）
         run: |
-          rm -rf /tmp/diag-a
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-a http://archive.ubuntu.com/ubuntu
-          echo "ABS_EXIT=$?"
-      - name: debootstrap 相对路径（复现 stage-2 调用）
+          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-s http://archive.ubuntu.com/ubuntu
+          echo "SUDO_EXIT=$?"
+      - name: sudo env PATH（复现 build-rootfs 包装）
         run: |
-          rm -rf diag-rel && mkdir -p diag-rel
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble ./diag-rel http://archive.ubuntu.com/ubuntu
-          echo "REL_EXIT=$?"
+          rm -rf /tmp/diag-e
+          sudo env "PATH=$PATH" debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-e http://archive.ubuntu.com/ubuntu
+          echo "ENV_EXIT=$?"
