@@ -42,7 +42,10 @@ jobs:
           DISTRO: ${{ github.event.inputs.distro || 'all' }}
           EDITION: ${{ github.event.inputs.edition || 'all' }}
           LANG: ${{ github.event.inputs.lang || 'all' }}
-        run: python3 .github/scripts/gen-matrix.py
+        run: |
+          MATRIX="$(python3 .github/scripts/gen-matrix.py)"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "解析矩阵: $MATRIX"
 
   # ---------- 内核构建（一次，产物供全部 rootfs job 复用） ----------
   build-kernel:

@@ -28,4 +28,4 @@ for d in expand(os.environ.get("DISTRO"), DISTROS):
         langs = ["en-US"] if e == "server" else expand(os.environ.get("LANG"), LANGS)
         for l in langs:
             matrix.append({"distro": d, "edition": e, "lang": l})
-print(f"matrix={json.dumps(matrix)}")
+print(json.dumps(matrix))
