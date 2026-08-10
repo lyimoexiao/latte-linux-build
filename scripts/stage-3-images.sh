@@ -55,7 +55,7 @@ info "boot.img 完成: $(du -h "$BOOT_IMG" | cut -f1)"
 RAW_IMG="$STAGE_DIR/xiaomi-latte-root.img"
 ROOT_IMG="$STAGE_DIR/images/xiaomi-latte-root.img"   # sparse 刷机版
 ROOT_MNT="$STAGE_DIR/root"
-info "生成 root.img（${ROOT_IMG_SIZE_MB}MB ext4, UUID=$ROOT_UUID）"
+info "生成 root.img（${ROOT_IMG_SIZE_MB}MB ext4, UUID=${ROOT_UUID}）"
 make_ext4_img "$RAW_IMG" "$ROOT_IMG_SIZE_MB" "$ROOT_LABEL" "$ROOT_UUID"
 mkdir -p "$ROOT_MNT"
 mount_loop "$RAW_IMG" "$ROOT_MNT"

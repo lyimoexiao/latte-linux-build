@@ -21,7 +21,7 @@ usage() {
   --lang <all|en-US|zh-CN>        语言（默认 all）
   --ref <commit|tag|branch>       内核 ref（默认 build.conf KERNEL_REF）
   --kernel-only                   只构建内核并退出
-  --skip-kernel                   复用已有内核产物（$KERNEL_OUT）
+  --skip-kernel                   复用已有内核产物（${KERNEL_OUT}）
   --stage <2|3|4>                 只执行指定阶段（对每个组合）
 EOF
 }
@@ -58,7 +58,7 @@ if [ "${skip_kernel:-0}" != 1 ] && [ -z "${stage:-}" ]; then
     "$ROOT/scripts/stage-1-kernel.sh" --ref "${ref:-$KERNEL_REF}"
 else
     info "跳过内核构建"
-    [ -f "$KERNEL_OUT/kernel-release" ] || die "缺少内核产物（$KERNEL_OUT），无法跳过 stage-1"
+    [ -f "$KERNEL_OUT/kernel-release" ] || die "缺少内核产物（${KERNEL_OUT}），无法跳过 stage-1"
 fi
 
 # ---------- 矩阵构建 ----------

@@ -15,7 +15,7 @@ PKG_DIR="$OUTDIR/$PKG_NAME"
 
 info "== Stage 4: 打包 $PKG_NAME =="
 for f in gpt.bin xiaomi-latte-boot.img xiaomi-latte-root.img; do
-    [ -f "$STAGE_DIR/images/$f" ] || die "缺少镜像 $f，请先运行 stage-3"
+    [ -f "$STAGE_DIR/images/$f" ] || die "缺少镜像 ${f}，请先运行 stage-3"
 done
 
 rm -rf "$PKG_DIR"; mkdir -p "$PKG_DIR/images" "$PKG_DIR/device_files"

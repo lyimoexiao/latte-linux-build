@@ -13,11 +13,26 @@ source "$CONF"
 
 # 解析 args（--key value / --flag），写入全局 KEY=value / FLAG=1
 parse_args() {
+    # 需要值的参数名（其余一律按布尔 flag 处理，值为 1）
+    # 参数名中的连字符会归一化为下划线（shell 变量名不允许连字符）
+    local valued="ref distro edition lang stage"
     while [ $# -gt 0 ]; do
+        local k="${1#--}"      # 去掉 -- 前缀
+        k="${k//-/_}"          # 连字符 -> 下划线
         case "$1" in
-            --*=*) declare -g "${1#--}" 2>/dev/null || true ;;
-            --*)   local k="${1#--}"; shift; declare -g "$k=${1:-1}" ;;
-            *)     echo "未知参数: $1" >&2; return 1 ;;
+            --*=*)
+                declare -g "${1#--}" 2>/dev/null || true
+                declare -g "$k=${1#--*=}" 2>/dev/null || true
+                ;;
+            --*)
+                if [[ " $valued " == *" ${k//_/-} "* ]]; then
+                    shift
+                    declare -g "$k=${1:-1}"
+                else
+                    declare -g "$k=1"
+                fi
+                ;;
+            *) echo "未知参数: $1" >&2; return 1 ;;
         esac
         shift 2>/dev/null || true
     done

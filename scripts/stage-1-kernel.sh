@@ -34,7 +34,7 @@ else
     git clone --depth 1 "$KERNEL_REPO" "$KERNEL_SRC"
 fi
 if ! git -C "$KERNEL_SRC" checkout -f "$KERNEL_REF" 2>/dev/null; then
-    warn "无法直接 checkout $KERNEL_REF，尝试 FETCH_HEAD"
+    warn "无法直接 checkout ${KERNEL_REF}，尝试 FETCH_HEAD"
     git -C "$KERNEL_SRC" checkout -f FETCH_HEAD
 fi
 info "内核 commit: $(git -C "$KERNEL_SRC" rev-parse --short HEAD)"
