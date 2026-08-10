@@ -12,8 +12,12 @@ lightdm-gtk-greeter
 bluez
 blueman
 
-# 音频（新发行版默认 PipeWire）
+# 音频（新发行版默认 PipeWire；wireplumber 是会话管理器，pipewire-pulse 只
+# 把它列为 Recommends，--no-install-recommends 下必须显式安装，否则无声）
 pipewire-pulse
+pipewire-bin
+wireplumber
+alsa-utils
 alsa-ucm-conf
 pavucontrol
 

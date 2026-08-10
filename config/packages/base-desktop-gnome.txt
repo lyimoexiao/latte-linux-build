@@ -17,8 +17,11 @@ dconf-cli
 bluez
 blueman
 
-# 音频（PipeWire）
+# 音频（PipeWire；wireplumber 为会话管理器，必须显式安装，否则无声）
 pipewire-pulse
+pipewire-bin
+wireplumber
+alsa-utils
 alsa-ucm-conf
 pavucontrol
 
