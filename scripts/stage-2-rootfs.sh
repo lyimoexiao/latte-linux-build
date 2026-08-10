@@ -134,6 +134,21 @@ fi
 [ -f "$ROOTFS/lib/firmware/brcm/$FW_WIFI" ] && \
     cp -n "$ROOTFS/lib/firmware/brcm/$FW_WIFI" "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.txt" || true
 
+# ---------- 缺失固件（linux-firmware 仓库） ----------
+# BCM4356(Cypress CYW4356) PCIe 固件在 linux-firmware 的 cypress/ 目录（Cypress
+# 命名），而驱动按 brcmfmac4356-pcie*.bin 查找，需复制改名；Intel SST 音频 DSP
+# 固件 fw_sst_22a8.bin 同理（intel/）。缺失会导致 dmesg 报 Direct firmware load
+# failed（WiFi 无网卡、音频无声）。
+FW_GIT="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain"
+mkdir -p "$ROOTFS/lib/firmware/brcm" "$ROOTFS/lib/firmware/intel"
+dl_fw() { curl -sfL --max-time 60 "$FW_GIT/$1" -o "$2" || warn "固件下载失败: $1"; }
+dl_fw cypress/cyfmac4356-pcie.bin "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.bin"
+dl_fw cypress/cyfmac4356-pcie.clm_blob "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.clm_blob"
+# 驱动优先按板名查找（DMI 匹配 Xiaomi Inc-Mipad2）
+cp -f "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.bin" \
+    "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.Xiaomi Inc-Mipad2.bin"
+dl_fw intel/fw_sst_22a8.bin "$ROOTFS/lib/firmware/intel/fw_sst_22a8.bin"
+
 # GRUB 内核参数（静态 grub.cfg 的参考配置；update-grub 运行时也会读取）
 mkdir -p "$ROOTFS/etc/default"
 cat > "$ROOTFS/etc/default/grub" <<EOF
