@@ -9,17 +9,13 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq debootstrap rsync python3 ca-certificates wget curl debian-archive-keyring ubuntu-keyring
-      - name: debootstrap -> /tmp（对照，应成功）
+      - name: debootstrap 绝对路径（对照）
         run: |
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-r1 http://archive.ubuntu.com/ubuntu
-          echo "TMP_EXIT=$?"
-      - name: debootstrap -> workspace（复现 build-rootfs 环境）
+          rm -rf /tmp/diag-a
+          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble /tmp/diag-a http://archive.ubuntu.com/ubuntu
+          echo "ABS_EXIT=$?"
+      - name: debootstrap 相对路径（复现 stage-2 调用）
         run: |
-          rm -rf "$GITHUB_WORKSPACE/diag-r2"
-          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble "$GITHUB_WORKSPACE/diag-r2" http://archive.ubuntu.com/ubuntu
-          echo "WS_EXIT=$?"
-      - name: 检查挂载选项
-        run: |
-          findmnt -T "$GITHUB_WORKSPACE" | head -3
-          findmnt -T /tmp | head -3
-          cat /proc/mounts | grep -E " / | /tmp | workspace" | head -5
+          rm -rf diag-rel && mkdir -p diag-rel
+          sudo debootstrap --variant=minbase --arch=amd64 --components="main,universe" noble ./diag-rel http://archive.ubuntu.com/ubuntu
+          echo "REL_EXIT=$?"
