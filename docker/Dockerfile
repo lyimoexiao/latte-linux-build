@@ -4,6 +4,7 @@ FROM debian:trixie-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         debootstrap \
+        debian-archive-keyring ubuntu-keyring \
         build-essential \
         bc bison flex libssl-dev libelf-dev \
         ccache dpkg-dev debhelper rsync \
