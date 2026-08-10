@@ -134,7 +134,7 @@ fi
 [ -f "$ROOTFS/lib/firmware/brcm/$FW_WIFI" ] && \
     cp -n "$ROOTFS/lib/firmware/brcm/$FW_WIFI" "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.txt" || true
 
-# GRUB 内核参数（静态 grub.cfg 的参考配置）
+# GRUB 内核参数（静态 grub.cfg 的参考配置；update-grub 运行时也会读取）
 mkdir -p "$ROOTFS/etc/default"
 cat > "$ROOTFS/etc/default/grub" <<EOF
 GRUB_DEFAULT=0
@@ -145,8 +145,19 @@ GRUB_CMDLINE_LINUX="root=UUID=$ROOT_UUID"
 GRUB_DISABLE_OS_PROBER=true
 EOF
 
-# 静态 grub.cfg（不运行 grub-mkconfig：chroot 中 grub-probe 无法探测无设备根文件系统；
-# 我们的镜像内核/根固定，静态配置更确定。Stage3 会把此文件连同内核一起拷入 ESP。）
+# 重新生成 initramfs（应用 initramfs-tools/modules）
+run_chroot "$ROOTFS" update-initramfs -u -k all
+
+# ---------- 引导器（仅安装，ESP 组装在 Stage 3） ----------
+# 注意：内核 .deb 必须先于 grub 安装，避免 kernel postinst 触发 update-grub（chroot 中会失败）
+info "安装 shim + grub（EFI）"
+run_chroot "$ROOTFS" apt-get install -y --no-install-recommends shim-signed grub-efi-amd64-signed
+
+# 静态 grub.cfg 必须在 grub 包安装之后写入：
+# Ubuntu 的 grub-efi-amd64-signed / shim-signed postinst 会运行 update-grub，
+# 用 grub-mkconfig 覆盖 /boot/grub/grub.cfg；其生成的 linux 条目路径为
+# /boot/vmlinuz-*，而 ESP 根没有 /boot 子目录，GRUB 会报 not found。
+# 最后写入保证静态配置不被覆盖。Stage3 会把此文件连同内核拷入 ESP。
 mkdir -p "$ROOTFS/boot/grub"
 cat > "$ROOTFS/boot/grub/grub.cfg" <<EOF
 set default=0
@@ -157,14 +168,6 @@ menuentry 'Mi Pad 2 - $DISTRO $EDITION $LANG (kernel $KVER)' {
     initrd /initrd.img-$KVER
 }
 EOF
-
-# 重新生成 initramfs（应用 initramfs-tools/modules）
-run_chroot "$ROOTFS" update-initramfs -u -k all
-
-# ---------- 引导器（仅安装，ESP 组装在 Stage 3） ----------
-# 注意：内核 .deb 必须先于 grub 安装，避免 kernel postinst 触发 update-grub（chroot 中会失败）
-info "安装 shim + grub（EFI）"
-run_chroot "$ROOTFS" apt-get install -y --no-install-recommends shim-signed grub-efi-amd64-signed
 
 # ---------- 默认用户 ----------
 info "创建默认用户 $DEFAULT_USER"
