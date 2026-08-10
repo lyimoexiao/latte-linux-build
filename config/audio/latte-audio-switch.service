@@ -1,0 +1,13 @@
+[Unit]
+Description=Latte audio route switcher (headphones/speaker)
+After=pipewire.service wireplumber.service
+Wants=wireplumber.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/latte-audio-switch.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

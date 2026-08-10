@@ -26,6 +26,15 @@ make clean              # 清理 work/ 与 dist/
   矩阵：该模式在本仓库实测会令矩阵 job 无法创建），手动构建时按 `if` 条件裁剪。
 - **内核只构建一次**：产物在 `work/kernel/`（debs / kernel-release / firmware），
   全部组合复用。CI 中通过 artifact 传递。
+- **内核本地补丁**：`config/kernel-patches/*.patch` 在 Stage 1 checkout 后自动
+  `git apply`。当前 `audio-headphone-jack.patch`：tfa989x 功放使能改为 ALSA 控件
+  （`Amp Switch L/R`，DAPM 不再自动置位）、rt5659 强制 JD3 插拔检测 + 轮询上报、
+  board 驱动启用 jack 上报。升级内核时若上游改动冲突需同步更新补丁。
+- **音频路由**：耳机与扬声器共用 rt5659 模拟输出（扬声器经 tfa9890 功放）。
+  `config/ucm/HiFi.conf` 定义 Speaker/HeadPhones 设备；实际路由由
+  `config/audio/latte-audio-switch.sh`（systemd user 服务，监听 card profile）
+  应用——耳机模式开模拟 mixer + codec_out0 增益 + 关功放，扬声器模式开功放。
+  插拔由内核 JD3 检测上报，WirePlumber 自动切 profile。
 - **rootfs 组装**：Stage 2 在 chroot 内完成；`policy-rc.d` 阻止服务启动尝试；
   内核 .deb 必须先于 grub 包安装（避免 kernel postinst 触发 update-grub 失败）。
 - **grub 配置是静态生成**的（`/boot/grub/grub.cfg`），不运行 grub-mkconfig

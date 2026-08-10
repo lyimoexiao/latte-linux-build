@@ -161,6 +161,15 @@ mkdir -p "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659"
 cp "$ROOT/config/ucm/chtbswrt5659.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
 cp "$ROOT/config/ucm/HiFi.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
 cp "$ROOT/config/ucm/Speaker.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
+
+# 音频切换服务：按声卡 profile 应用耳机/扬声器路由（依赖内核 audio-headphone-jack.patch
+# 的 Amp Switch 控件与 rt5659 JD3 插拔检测；插拔由 WirePlumber 自动切 profile）
+cp "$ROOT/config/audio/latte-audio-switch.sh" "$ROOTFS/usr/local/bin/"
+chmod 755 "$ROOTFS/usr/local/bin/latte-audio-switch.sh"
+mkdir -p "$ROOTFS/usr/lib/systemd/user" "$ROOTFS/etc/systemd/user/default.target.wants"
+cp "$ROOT/config/audio/latte-audio-switch.service" "$ROOTFS/usr/lib/systemd/user/"
+ln -sf /usr/lib/systemd/user/latte-audio-switch.service \
+    "$ROOTFS/etc/systemd/user/default.target.wants/latte-audio-switch.service"
 # 若 WiFi 固件未加载，提供常见备选文件名（fix_file/README.md 说明）
 [ -f "$ROOTFS/lib/firmware/brcm/$FW_WIFI" ] && \
     cp -n "$ROOTFS/lib/firmware/brcm/$FW_WIFI" "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.txt" || true

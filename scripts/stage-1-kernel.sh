@@ -39,6 +39,15 @@ if ! git -C "$KERNEL_SRC" checkout -f "$KERNEL_REF" 2>/dev/null; then
 fi
 info "内核 commit: $(git -C "$KERNEL_SRC" rev-parse --short HEAD)"
 
+# ---------- 应用本地 patch（config/kernel-patches/*.patch） ----------
+if [ -d "$ROOT/config/kernel-patches" ]; then
+    for p in "$ROOT"/config/kernel-patches/*.patch; do
+        [ -f "$p" ] || continue
+        info "应用内核 patch: $(basename "$p")"
+        git -C "$KERNEL_SRC" apply "$p" || die "内核 patch 应用失败: $p"
+    done
+fi
+
 # ---------- 构建 ----------
 info "配置: make $KERNEL_DEFCONFIG"
 make -C "$KERNEL_SRC" "$KERNEL_DEFCONFIG"
