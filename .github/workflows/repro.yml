@@ -2,14 +2,19 @@ name: repro-matrix
 on: [push]
 
 jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      combos: ${{ steps.m.outputs.combos }}
+    steps:
+      - id: m
+        run: echo 'combos=[{"a":1},{"a":2}]' >> "$GITHUB_OUTPUT"
+
   build:
+    needs: resolve
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - { a: 1 }
-          - { a: 2 }
-          - { a: 3 }
+      matrix: ${{ fromJSON(needs.resolve.outputs.combos) }}
     steps:
-      - run: echo "static matrix a=${{ matrix.a }}"
+      - run: echo "combo a=${{ matrix.a }}"
