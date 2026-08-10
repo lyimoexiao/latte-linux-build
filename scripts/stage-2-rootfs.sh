@@ -153,11 +153,14 @@ cp "$KERNEL_OUT/firmware/$FW_ISP" "$ROOTFS/lib/firmware/"
 # /lib/firmware 根目录位置驱动不识别，实测 dmesg 报 Direct firmware load failed）
 mkdir -p "$ROOTFS/lib/firmware/intel/ipu"
 cp "$KERNEL_OUT/firmware/$FW_ISP" "$ROOTFS/lib/firmware/intel/ipu/"
-# ALSA UCM 音频拓扑（保持目录结构复制到 ucm2）
-if [ -d "$KERNEL_OUT/firmware/audio" ]; then
-    mkdir -p "$ROOTFS/usr/share/alsa/ucm2"
-    cp -r "$KERNEL_OUT/firmware/audio/." "$ROOTFS/usr/share/alsa/ucm2/"
-fi
+# ALSA UCM 音频拓扑：使用修复版（config/ucm），不再拷贝 fix_file/audio 的旧 UCM
+# （旧版对 alsa-lib 1.2.x 不兼容：conf.d 按声卡 id 匹配不上、HiFi.conf 的
+# If.Controls/${CardId}/cset 分别报 ControlExists/cdev 错误）。已在真机验证：
+# 入口按声卡 id chtbswrt5659 建目录，wireplumber 成功创建 HiFi Speaker sink。
+mkdir -p "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659"
+cp "$ROOT/config/ucm/chtbswrt5659.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
+cp "$ROOT/config/ucm/HiFi.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
+cp "$ROOT/config/ucm/Speaker.conf" "$ROOTFS/usr/share/alsa/ucm2/chtbswrt5659/"
 # 若 WiFi 固件未加载，提供常见备选文件名（fix_file/README.md 说明）
 [ -f "$ROOTFS/lib/firmware/brcm/$FW_WIFI" ] && \
     cp -n "$ROOTFS/lib/firmware/brcm/$FW_WIFI" "$ROOTFS/lib/firmware/brcm/brcmfmac4356-pcie.txt" || true
