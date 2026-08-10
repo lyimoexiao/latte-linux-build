@@ -37,3 +37,7 @@ fonts-liberation
 
 # 视频硬解（i965 VA-API，Cherry Trail/Gen8 唯一可用的 VA-API 驱动）
 i965-va-driver
+
+# 相机（libcamera 用户空间；gstreamer/pipewire 插件按发行版加在 extras）
+libcamera-tools
+libcamera-v4l2

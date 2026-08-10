@@ -1,3 +1,4 @@
 # Ubuntu 特有包
 # （universe 组件已在 build.conf 的 UBUNTU_COMPONENTS 中启用）
-# ubuntu-minimal 提供了标准 base 环境，无需额外包
+# 相机流媒体管道（pipewire libcamera 插件）
+pipewire-libcamera
