@@ -264,8 +264,8 @@ mkdir -p "$ROOTFS/etc/skel/.config" \
 cp "$ROOT/config/monitors.xml" "$ROOTFS/etc/skel/.config/monitors.xml"
 cp "$ROOT/config/monitors.xml" "$ROOTFS/home/$DEFAULT_USER/.config/monitors.xml"
 cp "$ROOT/config/monitors.xml" "$ROOTFS/var/lib/gdm3/.config/monitors.xml"
-chown -R "$DEFAULT_USER:$DEFAULT_USER" "$ROOTFS/home/$DEFAULT_USER/.config"
-chown -R gdm:gdm "$ROOTFS/var/lib/gdm3/.config" 2>/dev/null || true
+chroot "$ROOTFS" chown -R "$DEFAULT_USER:$DEFAULT_USER" "/home/$DEFAULT_USER/.config"
+chroot "$ROOTFS" chown -R gdm:gdm /var/lib/gdm3/.config 2>/dev/null || true
 
 # 加速度计 udev 属性（GNOME 自动旋转）
 cp "$ROOT/config/60-latte-sensor.rules" "$ROOTFS/etc/udev/rules.d/60-latte-sensor.rules"
