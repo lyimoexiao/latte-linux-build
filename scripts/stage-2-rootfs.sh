@@ -225,8 +225,17 @@ menuentry 'Mi Pad 2 - $DISTRO $EDITION $LANG (kernel $KVER)' {
 EOF
 
 # ---------- 默认用户 ----------
+# 手动创建 latte 用户：chroot 中若安装了 libnss-systemd，nsswitch.conf 的
+# passwd 行含 systemd 模块，NSS 查询依赖运行中的 systemd（chroot 里没有），
+# useradd 的"用户是否已存在"检查会静默失败。直接写 passwd/group/shadow
+# （等价于 useradd 的结果），chown 用数字 UID 避免 NSS 解析。
 info "创建默认用户 $DEFAULT_USER"
-run_chroot "$ROOTFS" useradd -m -s /bin/bash "$DEFAULT_USER" || true
+echo "$DEFAULT_USER:x:1000:1000:,,,:/home/$DEFAULT_USER:/bin/bash" >> "$ROOTFS/etc/passwd"
+echo "$DEFAULT_USER:x:1000:" >> "$ROOTFS/etc/group"
+echo "$DEFAULT_USER:x:1000:0:99999:7:::" >> "$ROOTFS/etc/shadow"
+echo "$DEFAULT_USER:x:" >> "$ROOTFS/etc/gshadow"
+mkdir -p "$ROOTFS/home/$DEFAULT_USER"
+chroot "$ROOTFS" chown 1000:1000 "/home/$DEFAULT_USER"
 echo "$DEFAULT_USER:$DEFAULT_PASSWORD" | chroot "$ROOTFS" chpasswd
 run_chroot "$ROOTFS" usermod -aG sudo "$DEFAULT_USER"
 
